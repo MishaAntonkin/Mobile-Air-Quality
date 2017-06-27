@@ -12,6 +12,9 @@
         },
         "cordova-plugin-file": {
             "PACKAGE_NAME": "info.luftdaten.mobilefeinstaub"
+        },
+        "cordova-plugin-geolocation": {
+            "PACKAGE_NAME": "info.luftdaten.mobilefeinstaub"
         }
     },
     "dependent_plugins": {

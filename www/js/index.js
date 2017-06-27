@@ -189,51 +189,45 @@ var app = {
                 record = true;
             }
         }
-        
+
+	function hasClass(obj, cls) {
+		
+		if(obj.className.indexOf(cls) > -1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function removeClass(obj, cls) {
+		var classes = obj.className.split(" ");
+
+		for (var i = 0; i < classes.length; i++) {
+			if(classes[i] == cls) {
+				classes.splice(i, 1);
+				i -=1;
+			}
+		}
+		obj.className = classes.join(" ");
+	}
+
+	function addClass(obj, cls) { 
+	
+		var classes = obj.className ? obj.className.split(" ") : [];
+	
+		for(var i = 0; i < classes.length; i++) {
+	
+			if (classes[i] == cls) return;
+		}
+		classes.push(cls);
+		obj.className = classes.join(" ");
+        }
+
+	function swapClass(obj, oldcls, newcls) {
+ 		removeClass(obj, oldcls);
+		addClass(obj, newcls);
         
 	}
 };
 
 app.initialize();
-
-//alert("Ahtung!");
-
-function hasClass(obj, cls) {
-    
-    if(obj.className.indexOf(cls) > -1 ) {
-        return true;
-    } else {
-        return false;
-    }
-} 
-
-function removeClass(obj, cls) {   
-    
-    var classes = obj.className.split(" ");
-    
-    for (i = 0; i < classes.length; i++) {    
-      if(classes[i] == cls) {      
-          classes.splice(i, 1); // óäàëèòü êëàññ     
-          i -= 1;     
-      }   
-  } 
-    obj.className = classes.join(" ");
-}
-
-
-function addClass(obj, cls) {   
-    
-var classes = obj.className ? obj.className.split(" ") : [];
-   
-  for (var i = 0; i < classes.length; i++) {    
-     
-      if (classes[i] == cls) return; // êëàññ óæå åñòü 
-  }
-  classes.push(cls); // äîáàâèòü
-  obj.className = classes.join(" "); // è îáíîâèòü ñâîéñòâî 
-}
-
-function swapClass(obj, oldcls , newcls) {
-    removeClass(obj, oldcls);
-    addClass(obj, newcls);
-}

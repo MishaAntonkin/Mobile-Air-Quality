@@ -1,14 +1,16 @@
+d = document;
+
 var app = {
 	
 	initialize: function() {
 		document.addEventListener('deviceready', this.onDeviceReady, false);
 	},
 	onDeviceReady: function() {
+         
+        
 		var P1Text = document.getElementById('P1');
 		var P2Text = document.getElementById('P2');
 		var debug_out = document.getElementById('debug_out');
-//		var on = document.getElementById('on');
-//		var off = document.getElementById('off');
 		var str = '';
 		var buffer = [];
 		var graph_buffer_p1 = [];
@@ -19,6 +21,10 @@ var app = {
 		var checksum_is = 0;
 		var serial_pos = 0;
 		var checksum_ok = 0;
+        var check_loc = false;
+        var record = false;
+        
+        ininButListeners();
 
 
 		var errorCallback = function(message) {
@@ -152,6 +158,75 @@ var app = {
 		off.onclick = function() {
 			if (open) serial.write('0');
 		} */
+        
+        function initButListeners() {
+            alert(this);
+            var GeolocBtn = d.getElementById('GeolocBtn');
+            var RecordBtn = d.getElementById('RecordBtn');
+            
+            GeolocBtn.addEventListener('click', switchGeo);
+            RecordBtn.addEventListener('click', switchRec);
+            
+        }
+        
+        function switchGeo() {
+            alert(this);
+            if(hasClass(this, 'off')) {
+                swapClass(this, 'off', 'on');
+                check_loc = true;
+            } else {
+                swapClass(this, 'on', 'off');
+                check_loc = true;
+            }
+        }
+        
+        function switchRec() {
+            if(hasClass(this, 'off')) {
+                swapClass(this, 'off', 'on');
+                record = true;
+            } else {
+                swapClass(this, 'on', 'off');
+                record = true;
+            }
+        }
+
+	function hasClass(obj, cls) {
+		
+		if(obj.className.indexOf(cls) > -1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function removeClass(obj, cls) {
+		var classes = obj.className.split(" ");
+
+		for (var i = 0; i < classes.length; i++) {
+			if(classes[i] == cls) {
+				classes.splice(i, 1);
+				i -=1;
+			}
+		}
+		obj.className = classes.join(" ");
+	}
+
+	function addClass(obj, cls) { 
+	
+		var classes = obj.className ? obj.className.split(" ") : [];
+	
+		for(var i = 0; i < classes.length; i++) {
+	
+			if (classes[i] == cls) return;
+		}
+		classes.push(cls);
+		obj.className = classes.join(" ");
+        }
+
+	function swapClass(obj, oldcls, newcls) {
+ 		removeClass(obj, oldcls);
+		addClass(obj, newcls);
+        
 	}
 };
 

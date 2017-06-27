@@ -5,6 +5,10 @@
 div[ng-view]{
      height: 100%;
 }
+html {
+    height: 100%;
+    width: 100%;
+}
 
 body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
@@ -24,7 +28,7 @@ body {
     background-attachment:fixed;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-size:12px;
-    height:100vh;
+    height:100%;
     margin:0px;
     padding:0px;
     text-transform:uppercase;
@@ -34,11 +38,12 @@ body {
 /* Portrait layout (default) */
 .app {
 	height: 100%;
-	margin: 10%;
+	padding: 0 10%;
 }
 
 #logo {
 	width: 50%;
+    margin-top: 10%;
 }
 
 .value_out {
@@ -113,4 +118,51 @@ h1 {
 .blink {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
+}
+
+.btn-holders {
+    width: 100%;
+    font-size: 0;
+    
+}
+
+.manage-area {
+    display: inline-block;
+    width: 50%;
+}
+
+.manage-area > p {
+    text-transform: none;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: bold;
+}
+
+.btn-control {
+    min-width: 120px;
+    border: none;
+    
+}
+
+.btn-control > p {
+    display: block;
+    line-height: 20px;
+    font-size: 16px;
+}
+
+.btn-control.on > p:nth-child(2n) {
+    display: none;
+}
+
+.btn-control.off > p:nth-child(2n - 1) {
+    display: none;
+}
+
+.btn-control.on {
+    background-color: forestgreen;
+}
+
+.btn-control.off {
+    background-color: red;
+    
 }

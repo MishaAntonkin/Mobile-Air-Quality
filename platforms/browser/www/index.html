@@ -13,15 +13,34 @@
 			<img id="logo" src="img/CFG_logo.svg"><br /><br />
 
 			<h2>Mobile Feinstaubmessung</h2>
-            <h1>Artanis</h1>
 			<div id="value_out">
 				<h2>PM10: <span id="P1"> </span></h2>
 				<h2>PM2.5: <span id="P2"> </span></h2>
 				<p id="debug_out">...</p>
 				<canvas id="graph" height="150"></canvas>
 			</div>
-        </div>
+            
+            <!--Commander code starts here-->
+            <div class="btn-holders">
+                <div class="manage-area">
+                    <p>Geolocation</p>
+                    <button id='GeolocBtn' class="btn-control off">
+                        <p class="on">On</p>
+                        <p class="off">Off</p>
+                    </button>
+                </div>
+                <div class="manage-area">
+                    <p>Record</p>
+                    <button id="RecordBtn" class="btn-control off">
+                        <p class="on">On</p>
+                        <p class="off">Off</p>
+                    </button>
+                </div>
+            </div>
+        <!--Commader code ends here-->    
+
         <script type="text/javascript" src="cordova.js"></script>
+
         <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
