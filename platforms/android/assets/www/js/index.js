@@ -20,6 +20,7 @@ var app = {
 		var serial_pos = 0;
 		var checksum_ok = 0;
 
+
 		var errorCallback = function(message) {
 			alert('Error: ' + message);
 		};

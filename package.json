@@ -1,0 +1,20 @@
+{
+    "name": "info.luftdaten.mobilefeinstaub",
+    "version": "1.0.7",
+    "displayName": "MobileFeinstaub",
+    "cordova": {
+        "platforms": [
+            "android"
+        ],
+        "plugins": {
+            "cordova-plugin-file": {},
+            "cordova-plugin-whitelist": {}
+        }
+    },
+    "dependencies": {
+        "cordova-android": "~6.2.3",
+        "cordova-plugin-file": "~4.3.3",
+        "cordova-plugin-whitelist": "1",
+        "geolocation": "^0.2.0"
+    }
+}
