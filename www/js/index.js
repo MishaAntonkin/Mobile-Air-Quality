@@ -24,12 +24,27 @@ var app = {
         var check_loc = false;
         var record = false;
         
-        ininButListeners();
+        initButListeners();
+        
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        
+        function onSuccess(position) {
+        
+            alert("Latt-" + position.coords.latitude  + " Long-" + position.coords.longitude);
+        }
+
+        function onError() {
+            alert('onError!');
+        }
 
 
 		var errorCallback = function(message) {
 			alert('Error: ' + message);
 		};
+              
+        /*My test code for write csv, source code look below*/
+        writeCSV(1,2,3,4,5,6);
+        
 		// request permission first
 		serial.requestPermission(
 			// if user grants permission
@@ -151,16 +166,8 @@ var app = {
 			errorCallback
 		);
 
-/*		on.onclick = function() {
-			console.log('click');
-			if (open) serial.write('1');
-		};
-		off.onclick = function() {
-			if (open) serial.write('0');
-		} */
         
         function initButListeners() {
-            alert(this);
             var GeolocBtn = d.getElementById('GeolocBtn');
             var RecordBtn = d.getElementById('RecordBtn');
             
@@ -170,7 +177,6 @@ var app = {
         }
         
         function switchGeo() {
-            alert(this);
             if(hasClass(this, 'off')) {
                 swapClass(this, 'off', 'on');
                 check_loc = true;
@@ -228,6 +234,151 @@ var app = {
 		addClass(obj, newcls);
         
 	}
+    }
 };
 
 app.initialize();
+
+
+
+function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
+    //Original CSV Pm25, Pm10, lat, long, utc
+    //temporary date
+    //DEFAULT
+    var date =  processDate();
+    //Maybe LATER make global var, something like fileNameCSV
+    var fileName = 'Airlogger_Date_Time_Nummber.csv';
+    
+    dataline = Pm_25 +','+Pm_10+','+lat + ',' + lon + ',' + date + '\n';
+    console.log(dataline);
+    
+    writeToFile(fileName, false, dataline);    
+
+}
+
+writeKML(1,2,3, 10.321, 123.123, 12.12);
+
+function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
+    //temporary date
+    //DEFAULT
+    var date =  processDate();
+    //Maybe LATER make global var, something like fileNamekml_25
+    var fileName_25 = 'Airlogger_Date_Time_Nummber_25.kml';
+    var fileName_10 = 'Airlogger_Date_Time_Nummber_10.kml';
+    
+    
+    var dataObj_25 = formKml("pm_25", Pm_25, date, lon, lat);
+    var dataObj_10 = formKml("pm_10", Pm_10, date, lon, lat);
+    
+    console.log(dataObj_25);
+    console.log(dataObj_10);
+    
+    //writeToFile(fileName_25, true, dataObj_25);
+    //writeToFile(fileName_10, true, dataObj_10);
+}
+
+function writeKML_line(val_pm_10,val_pm_25 , val_pm_old, val_lon_old, val_lat_old, val_lat, val_lon, val_time, val_fname, val_color) {
+    
+}
+
+function formKml(type, pm, time, lon, lat) {
+    
+    var data = "   <Placemark>\n" 
+        + "       <name>"+type+": "+ pm +"</name>\n" 
+        + "       <description> Time: " + time + "</description>\n"
+        + "       <Point>\n"
+		+ "           <coordinates>" + lon + "," + lat + ",0</coordinates>\n"
+		+ "       </Point>\n"
+        + "   </Placemark>\n";
+    return data;
+}
+
+function formKml(type, pm, time, lon, lat) { 
+    
+     var data =;
+         
+    
+}
+    
+function processDate() {
+    var date = new Date;
+    var dateStr = date.toString();
+    var index = dateStr.indexOf('(');
+    var newdate = dateStr.slice(0,index-1);
+    return newdate;
+}
+
+function writeToFile(fileName, isKML, dataline) {
+        /*externalRootDirectory*/
+        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) {
+            isAppend = true;
+            createFile(dirEntry, fileName , isKML, dataline);
+        }, errorCallback);
+    
+}
+
+function createFile(dirEntry, fileName, isKML, dataline) {
+    // Creates a new file or returns the file if it already exists.
+    dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+
+        writeFile(fileEntry, dataline, isKML);
+
+    }, errorCallback);
+
+}
+        
+function writeFile(fileEntry, dataObj, isKML) {
+            // Create a FileWriter object for our FileEntry (log.txt).
+    fileEntry.createWriter(function (fileWriter) {
+
+        fileWriter.onwriteend = function() {
+            console.log("Successful file read...");
+            readFile(fileEntry);
+            };
+
+        fileWriter.onerror = function (e) {
+            console.log("Failed file read: " + e.toString());
+            };
+
+            // If we are appending data to file, go to the end of the file.
+            // Maybe later it should be rewrite
+        if (isKML && fileWriter.length == 0) {
+           
+                try {
+                    fileWriter.seek(fileWriter.length);
+                    dataObj = "<?xml version='1.0' encoding='UTF-8'?>\n" 
+				+ "<kml xmlns='http://earth.google.com/kml/2.1'>\n"
+				//+ "<Document>\n"
+				//+ "   <name> feinstaub_" + type + "_" + datetime.datetime.now().strftime ("%Y%m%d") + ".kml </name>\n")
+				+ '\n'
+                + dataObj;
+                }
+                catch (e) {
+                    console.log("file doesn't exist!");
+                }
+        }  else {
+                try {
+                    fileWriter.seek(fileWriter.length);
+                }
+                catch (e) {
+                    console.log("file doesn't exist!");
+                }
+        }
+            fileWriter.write(dataObj);
+        });
+}
+        
+function readFile(fileEntry) {
+
+    fileEntry.file(function (file) {
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+        console.log("Successful file read: " + this.result);
+    };
+
+    reader.readAsText(file);
+
+    }, errorCallback);
+}
+    

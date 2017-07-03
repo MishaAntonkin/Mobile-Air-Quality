@@ -24,12 +24,27 @@ var app = {
         var check_loc = false;
         var record = false;
         
-        ininButListeners();
+        initButListeners();
+        
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        
+        function onSuccess(position) {
+        
+            alert("Latt-" + position.coords.latitude  + " Long-" + position.coords.longitude);
+        }
+
+        function onError() {
+            alert('onError!');
+        }
 
 
 		var errorCallback = function(message) {
 			alert('Error: ' + message);
 		};
+              
+        /*My test code for write csv, source code look below*/
+        writeCSV(1,2,3,4,5,6);
+        
 		// request permission first
 		serial.requestPermission(
 			// if user grants permission
@@ -151,16 +166,8 @@ var app = {
 			errorCallback
 		);
 
-/*		on.onclick = function() {
-			console.log('click');
-			if (open) serial.write('1');
-		};
-		off.onclick = function() {
-			if (open) serial.write('0');
-		} */
         
         function initButListeners() {
-            alert(this);
             var GeolocBtn = d.getElementById('GeolocBtn');
             var RecordBtn = d.getElementById('RecordBtn');
             
@@ -170,7 +177,6 @@ var app = {
         }
         
         function switchGeo() {
-            alert(this);
             if(hasClass(this, 'off')) {
                 swapClass(this, 'off', 'on');
                 check_loc = true;
@@ -228,6 +234,92 @@ var app = {
 		addClass(obj, newcls);
         
 	}
+    }
 };
 
 app.initialize();
+
+
+
+function writeCSV(fileName, Pm_25, Pm_10, lat, long, date) {
+    //Original CSV Pm25, Pm10, lat, long, utc
+    //temporary date
+    //DEFAULT
+    var now = new Date;
+    date =  deleteCountrySeason(now);
+    fileName = 'Airlogger_Date_Time_Nummber.csv';
+    
+    dataline = Pm_25 +','+Pm_10+','+lat + ',' + long + ',' + date + '\n';
+    console.log(dataline);
+    
+    writeToFile(fileName, true, dataline);    
+
+}
+    
+function deleteCountrySeason(date) {
+    console.log(typeof(date));
+    dateStr = date.toString();
+    index = dateStr.indexOf('(');
+    newdate = dateStr.slice(0,index-1);
+    return newdate;
+}
+
+function writeToFile(fileName, isAppend, dataline) {
+    
+        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) {
+            isAppend = true;
+            createFile(dirEntry, fileName , isAppend, dataline);
+        }, errorCallback);
+    
+}
+
+function createFile(dirEntry, fileName, isAppend, dataline) {
+    // Creates a new file or returns the file if it already exists.
+    dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+
+        writeFile(fileEntry, dataline, isAppend);
+
+    }, errorCallback);
+
+}
+        
+function writeFile(fileEntry, dataObj, isAppend) {
+            // Create a FileWriter object for our FileEntry (log.txt).
+    fileEntry.createWriter(function (fileWriter) {
+
+        fileWriter.onwriteend = function() {
+            console.log("Successful file read...");
+            readFile(fileEntry);
+            };
+
+        fileWriter.onerror = function (e) {
+            console.log("Failed file read: " + e.toString());
+            };
+
+            // If we are appending data to file, go to the end of the file.
+        if (isAppend) {
+            try {
+                fileWriter.seek(fileWriter.length);
+                }
+            catch (e) {
+                console.log("file doesn't exist!");
+                }
+            }
+            fileWriter.write(dataObj);
+        });
+}
+        
+function readFile(fileEntry) {
+
+    fileEntry.file(function (file) {
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+        console.log("Successful file read: " + this.result);
+    };
+
+    reader.readAsText(file);
+
+    }, errorCallback);
+}
+    

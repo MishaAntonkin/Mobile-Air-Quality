@@ -144,6 +144,10 @@ h1 {
     
 }
 
+.btn-control:focus {
+    outline: none;
+}
+
 .btn-control > p {
     display: block;
     line-height: 20px;
