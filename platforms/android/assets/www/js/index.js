@@ -1,4 +1,6 @@
+//GLOBAL VAR
 d = document;
+
 
 var app = {
 	
@@ -36,17 +38,35 @@ var app = {
         function onError() {
             alert('onError!');
         }
+
+
+		var errorCallback = function(message) {
+			alert('Error: ' + message);
+		};
               
         /*My test code for write csv, source code look below*/
         //writeCSV(1,2,3,4,5,6);
-        console.log("applicationDirectory: " + cordova.file.applicationDirectory);
-        console.log("applicationStorageDirectory: " + cordova.file.applicationStorageDirectory);
-        console.log("cacheDirectory: " + cordova.file.cacheDirectory);
-        console.log("dataDirectory: " + cordova.file.dataDirectory);
-        console.log("externalRootDirectory: " + cordova.file.externalRootDirectory);
-        console.log("externalApplicationStorageDirectory: " + cordova.file.externalApplicationStorageDirectory);
-        console.log("externalCacheDirectry: " + cordova.file.externalCacheDirectry);
-        console.log("externalDataDirectory: " + cordova.file.externalDataDirectory);
+        //test my Kml code
+        //writeKML(0, 0, 0, 0, 0, 0);
+        //Test my Kml_line code
+        //writeKML_line(1.2, 2.3, 3, 10.321, 123.123, 12.12, 12, 45, 67, 90);
+        createDirectory();
+        function createDirectory() {
+            
+             window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+                 
+                dirEntry.getDirectory('NewDirInRoot', { create: true, exclusive:false }, function (innerdirEntry) {
+                
+                    console.log(dirEntry.fullPath );
+                    console.log(innerdirEntry.fullPath );
+                    innerdirEntry.getDirectory("NewNew", {create: true}, function(enter) {}, errorFile);
+                    
+                }, errorFile);
+            
+            }, errorFile);
+            
+            
+        }
         
 		// request permission first
 		serial.requestPermission(
@@ -199,7 +219,7 @@ var app = {
             }
         }
 
-	function hasClass(obj, cls) {
+	   function hasClass(obj, cls) {
 		
 		if(obj.className.indexOf(cls) > -1) {
 			return true;
@@ -208,7 +228,7 @@ var app = {
 		}
 	}
 
-	function removeClass(obj, cls) {
+	   function removeClass(obj, cls) {
 		var classes = obj.className.split(" ");
 
 		for (var i = 0; i < classes.length; i++) {
@@ -220,7 +240,7 @@ var app = {
 		obj.className = classes.join(" ");
 	}
 
-	function addClass(obj, cls) { 
+	   function addClass(obj, cls) { 
 	
 		var classes = obj.className ? obj.className.split(" ") : [];
 	
@@ -232,7 +252,7 @@ var app = {
 		obj.className = classes.join(" ");
         }
 
-	function swapClass(obj, oldcls, newcls) {
+	   function swapClass(obj, oldcls, newcls) {
  		removeClass(obj, oldcls);
 		addClass(obj, newcls);
         
@@ -240,78 +260,189 @@ var app = {
     }
 };
 
-var errorCallback = function(message) {
-			alert('Error: ' + message);
-		};
-
-
 app.initialize();
 
 
-
-function writeCSV(fileName, Pm_25, Pm_10, lat, long, date) {
+function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
     //Original CSV Pm25, Pm10, lat, long, utc
     //temporary date
     //DEFAULT
-    var now = new Date;
-    date =  deleteCountrySeason(now);
-    fileName = 'Airlogger_Date_Time_Nummber.csv';
+    var date =  processDate();
+    //Maybe LATER make global var, something like fileNameCSV
+    var fileName = 'Airlogger_Date_Time_Nummber.csv';
     
-    dataline = Pm_25 +','+Pm_10+','+lat + ',' + long + ',' + date + '\n';
+    dataline = Pm_25 +','+Pm_10+','+lat + ',' + lon + ',' + date + '\n';
     console.log(dataline);
     
-    writeToFile(fileName, true, dataline);    
+    writeToFile(fileName, dataObj);    
 
 }
+
+function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
+    //temporary date
+    //DEFAULT
+    var date =  processDate();
+    //Maybe LATER make global var, something like fileNamekml_25
+    var fileName_25 = 'Airlogger_Date_Time_Nummber_25.kml';
+    var fileName_10 = 'Airlogger_Date_Time_Nummber_10.kml';
     
-function deleteCountrySeason(date) {
-    console.log(typeof(date));
-    dateStr = date.toString();
-    index = dateStr.indexOf('(');
-    newdate = dateStr.slice(0,index-1);
+    
+    var dataObj_25 = formKml("pm_25", Pm_25, date, lon, lat);
+    var dataObj_10 = formKml("pm_10", Pm_10, date, lon, lat);
+    
+    writeToFile_KML(fileName_25, dataObj_25, "25");
+    writeToFile_KML(fileName_10, dataObj_10, "10");
+}
+
+function writeKML_line(pm_25, pm_10, pm_25_old, pm_10_old, lat, lon, lat_old, lon_old, time, fname) {
+    //temporary date
+    //DEFAULT
+    var date =  processDate();
+    //Maybe LATER make global var, something like fileNamekml_25
+    var fileName_25 = 'Airlogger_Date_Time_Nummber_25_line.kml';
+    var fileName_10 = 'Airlogger_Date_Time_Nummber_10_line.kml';
+    
+    var dataObj_25 = formKml_line(pm_25, pm_25_old, lat, lon, lat_old, lon_old, date, color_selection(pm_25));
+    var dataObj_10 = formKml_line(pm_10, pm_10_old, lat, lon, lat_old, lon_old, date, color_selection(pm_10));
+    
+    writeToFile_KML(fileName_25, dataObj_25, "25");
+    writeToFile_KML(fileName_10, dataObj_10, "10");
+}
+
+function formKml(type, pm, time, lon, lat) {
+    
+    var data = "   <Placemark>\n" 
+        + "       <name>"+type+": "+ pm +"</name>\n" 
+        + "       <description> Time: " + time + "</description>\n"
+        + "       <Point>\n"
+		+ "           <coordinates>" + lon + "," + lat + ",0</coordinates>\n"
+		+ "       </Point>\n"
+        + "   </Placemark>\n";
+    return data;
+}
+
+function formKml_line(pm, pm_old, lat, lon, lon_old, lat_old, time, color) { 
+    
+     var data ="   <Placemark>\n"
+				+ "       <LineString>\n"
+				+ "           <altitudeMode>relativeToGround</altitudeMode>\n"
+				+ "           <coordinates>" + lon + "," + lat + "," + pm + "\n "+ lon_old+ ","+ lat_old+ "," + pm_old + "</coordinates>\n"
+				+ "       </LineString>\n"
+				+ "       <Style>\n"
+				+ "           <LineStyle>\n"
+				+ "               <color>" + color + "</color>\n"
+				+ "               <width>8</width>\n"
+				+ "           </LineStyle>\n"
+				+ "       </Style>\n"
+				+ "   </Placemark>\n";
+                           
+    return data;
+         
+    
+}
+    
+function processDate() {
+    var date = new Date;
+    var dateStr = date.toString();
+    var index = dateStr.indexOf('(');
+    var newdate = dateStr.slice(0,index-1);
     return newdate;
 }
 
-function writeToFile(fileName, isAppend, dataline) {
+function writeToFile_KML(fileName, dataObj, type) {
     
-        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) {
+    window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+        
+        dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+
+           fileEntry.createWriter(function (fileWriter) {
+
+                fileWriter.onwriteend = function() {
+                    console.log("Successful file read...");
+                    readFile(fileEntry);
+                };
+
+                fileWriter.onerror = function (e) {
+                    console.log("Failed file read: " + e.toString());
+                };
+
+                // If we are appending data to file, go to the end of the file.
+                // Maybe later it should be rewrite
+                if (fileWriter.length == 0) {
+                    
+                    try {
+                        fileWriter.seek(fileWriter.length);
+                        dataObj = "<?xml version='1.0' encoding='UTF-8'?>\n"
+				        + "<kml xmlns='http://earth.google.com/kml/2.1'>\n"
+				        + "<Document>\n"
+				        + "   <name> feinstaub_"+type+"_"+ getYearMonthDate() + ".kml </name>\n"
+				        + '\n'
+                        + dataObj;
+                    }
+                
+                    catch (e) {
+                        console.log("file doesn't exist!");
+                    }
+                    
+                }  else {
+                    
+                    try {
+                    
+                        fileWriter.seek(fileWriter.length);
+                    
+                    }
+                    catch (e) {
+                        console.log("file doesn't exist!");
+                    }
+                }
+               
+                fileWriter.write(dataObj);
+        });
+
+        }, errorFile);
+            
+    }, errorFile);
+}
+
+function writeToFile(fileName, dataObj) {
+        /*externalRootDirectory*/
+        window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
             isAppend = true;
-            createFile(dirEntry, fileName , isAppend, dataline);
-        }, errorCallback);
+            createFile(dirEntry, fileName , dataObj);
+        }, errorFile);
     
 }
 
-function createFile(dirEntry, fileName, isAppend, dataline) {
+function createFile(dirEntry, fileName, dataObj) {
     // Creates a new file or returns the file if it already exists.
     dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
 
-        writeFile(fileEntry, dataline, isAppend);
+        writeFile(fileEntry, dataObj);
 
-    }, errorCallback);
+    }, errorFile);
 
 }
         
-function writeFile(fileEntry, dataObj, isAppend) {
+function writeFile(fileEntry, dataObj) {
             // Create a FileWriter object for our FileEntry (log.txt).
     fileEntry.createWriter(function (fileWriter) {
 
         fileWriter.onwriteend = function() {
+            console.log("Successful file read...");
             readFile(fileEntry);
             };
 
         fileWriter.onerror = function (e) {
             console.log("Failed file read: " + e.toString());
             };
-
-            // If we are appending data to file, go to the end of the file.
-        if (isAppend) {
-            try {
-                fileWriter.seek(fileWriter.length);
-                }
-            catch (e) {
-                console.log("file doesn't exist!");
-                }
-            }
+        
+        try {
+            fileWriter.seek(fileWriter.length);
+        }
+        catch (e) {
+            console.log("file doesn't exist!");
+        }
+        
             fileWriter.write(dataObj);
         });
 }
@@ -327,6 +458,36 @@ function readFile(fileEntry) {
 
     reader.readAsText(file);
 
-    }, errorCallback);
+    }, errorFile);
 }
+
+function color_selection(value) {
+	// red
+	var color = "#64009614"	
+	if (50 <= value <= 2000) {
+		color = "#641400F0";
+    }
+	// orange
+	else if (25 <= value <= 49) {
+		color = "#641478FF";
+    }
+	//green
+	else if (0 <= value < 25) {
+		color = "#64009614";		
+    }
+	return color;
+}
+
+function getYearMonthDate() {
     
+    var date = new Date;
+    var month =  (date.getUTCMonth() +1) > 9 ? (date.getUTCMonth() + 1) : "0" + (date.getUTCMonth() + 1);
+    var day  = date.getUTCDate() > 9 ? date.getUTCDate() : "0"+date.getUTCDate();
+    
+    return date.getUTCFullYear() + month + day;
+    //return date.getFullYear().toString() + (date.getMonth() +1) + date.getUTCDay();
+}
+
+function errorFile(message) {
+		alert('Error: ' + message);
+	};
