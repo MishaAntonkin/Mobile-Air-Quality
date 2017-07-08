@@ -12,6 +12,9 @@
     <feature name="Geolocation">
         <param name="android-package" value="org.apache.cordova.geolocation.Geolocation" />
     </feature>
+    <feature name="MediaScannerPlugin">
+        <param name="android-package" value="br.com.brunogrossi.MediaScannerPlugin.MediaScannerPlugin" />
+    </feature>
     <name>MobileFeinstaub</name>
     <description>
         Mobile Feinstaubmessung

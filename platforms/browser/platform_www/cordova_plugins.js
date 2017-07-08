@@ -178,6 +178,14 @@ module.exports = [
         "merges": [
             "window.FileSystem"
         ]
+    },
+    {
+        "file": "plugins/br.com.brunogrossi.MediaScannerPlugin/www/MediaScannerPlugin.js",
+        "id": "br.com.brunogrossi.MediaScannerPlugin.MediaScannerPlugin",
+        "pluginId": "br.com.brunogrossi.MediaScannerPlugin",
+        "clobbers": [
+            "cordova.plugins.MediaScannerPlugin"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -186,7 +194,8 @@ module.exports.metadata =
     "cordova-plugin-whitelist": "1.3.2",
     "cordova-plugin-compat": "1.0.0",
     "cordova-plugin-file": "4.3.3",
-    "cordova-plugin-geolocation": "2.4.3"
+    "cordova-plugin-geolocation": "2.4.3",
+    "br.com.brunogrossi.MediaScannerPlugin": "0.1.3"
 }
 // BOTTOM OF METADATA
 });

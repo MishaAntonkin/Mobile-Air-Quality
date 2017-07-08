@@ -1,5 +1,6 @@
 //GLOBAL VAR
 d = document;
+folderExist = false;
 
 
 var app = {
@@ -8,7 +9,8 @@ var app = {
 		document.addEventListener('deviceready', this.onDeviceReady, false);
 	},
 	onDeviceReady: function() {
-         
+        
+         dataPath = cordova.file.externalRootDirectory + "NewDirInRoot/";
         
 		var P1Text = document.getElementById('P1');
 		var P2Text = document.getElementById('P2');
@@ -26,8 +28,12 @@ var app = {
         var check_loc = false;
         var record = false;
         
+    
+        
         initButListeners();
         
+        fileInitialize();
+
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
         
         function onSuccess(position) {
@@ -45,26 +51,12 @@ var app = {
 		};
               
         /*My test code for write csv, source code look below*/
-        //writeCSV(1,2,3,4,5,6);
+        writeCSV(1,2,3,4,5,6);
         //test my Kml code
-        //writeKML(0, 0, 0, 0, 0, 0);
+        writeKML(0, 0, 0, 0, 0, 0);
         //Test my Kml_line code
-        //writeKML_line(1.2, 2.3, 3, 10.321, 123.123, 12.12, 12, 45, 67, 90);
-        createDirectory();
-        function createDirectory() {
-            
-             window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
-                 
-                dirEntry.getDirectory('NewDirInRoot', { create: true, exclusive:false }, function (innerdirEntry) {
-                    
-                    innerdirEntry.getDirectory("NewNew", {create: true}, function(enter) {}, errorFile);
-                    
-                }, errorFile);
-            
-            }, errorFile);
-            
-            
-        }
+        writeKML_line(1.2, 2.3, 3, 10.321, 123.123, 12.12, 12, 45, 67, 90);
+        
         
 		// request permission first
 		serial.requestPermission(
@@ -262,6 +254,7 @@ app.initialize();
 
 
 function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
+    if(folderExist === false) return;
     //Original CSV Pm25, Pm10, lat, long, utc
     //temporary date
     //DEFAULT
@@ -277,6 +270,7 @@ function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
 }
 
 function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
+    if(folderExist === false) return;
     //temporary date
     //DEFAULT
     var date =  processDate();
@@ -293,6 +287,7 @@ function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
 }
 
 function writeKML_line(pm_25, pm_10, pm_25_old, pm_10_old, lat, lon, lat_old, lon_old, time, fname) {
+    if(folderExist === false) return;
     //temporary date
     //DEFAULT
     var date =  processDate();
@@ -334,9 +329,7 @@ function formKml_line(pm, pm_old, lat, lon, lon_old, lat_old, time, color) {
 				+ "       </Style>\n"
 				+ "   </Placemark>\n";
                            
-    return data;
-         
-    
+    return data;   
 }
     
 function processDate() {
@@ -349,7 +342,7 @@ function processDate() {
 
 function writeToFile_KML(fileName, dataObj, type) {
     
-    window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+    window.resolveLocalFileSystemURL(dataPath, function (dirEntry) {
         
         dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
 
@@ -404,7 +397,7 @@ function writeToFile_KML(fileName, dataObj, type) {
 
 function writeToFile(fileName, dataObj) {
         /*externalRootDirectory*/
-        window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+        window.resolveLocalFileSystemURL(dataPath, function (dirEntry) {
             isAppend = true;
             createFile(dirEntry, fileName , dataObj);
         }, errorFile);
@@ -483,9 +476,32 @@ function getYearMonthDate() {
     var day  = date.getUTCDate() > 9 ? date.getUTCDate() : "0"+date.getUTCDate();
     
     return date.getUTCFullYear() + month + day;
-    //return date.getFullYear().toString() + (date.getMonth() +1) + date.getUTCDay();
 }
 
 function errorFile(message) {
 		alert('Error: ' + message);
 	};
+
+function successCall(message) {
+    folderExist = true;
+    console.log("Eyy: " + message);
+}
+
+function createDirectory() {
+            
+    window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+                 
+        dirEntry.getDirectory('NewDirInRoot', { create: true, exclusive:false }, function (innerdirEntry) {
+
+            cordova.plugins.MediaScannerPlugin.scanFile(cordova.file.externalRootDirectory + "NewDirInRoot/", successCall, errorFile);
+                    
+        }, errorFile);
+            
+    }, errorFile);
+            
+}
+
+function fileInitialize() {
+    
+    createDirectory();
+}

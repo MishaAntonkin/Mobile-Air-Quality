@@ -30,5 +30,13 @@
         },
         "is_top_level": true,
         "variables": {}
+    },
+    "br.com.brunogrossi.MediaScannerPlugin": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-mediascanner"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

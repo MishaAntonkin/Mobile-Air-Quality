@@ -26,6 +26,7 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <engine name="android" spec="~6.2.3" />
+    <plugin name="br.com.brunogrossi.MediaScannerPlugin" spec="~0.1.3" />
     <plugin name="cordova-plugin-file" spec="~4.3.3" />
     <plugin name="cordova-plugin-geolocation" spec="^2.4.3" />
     <plugin name="cordova-plugin-whitelist" spec="1" />

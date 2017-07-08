@@ -186,6 +186,14 @@ module.exports = [
         "file": "plugins/cordova-plugin-geolocation/www/PositionError.js",
         "pluginId": "cordova-plugin-geolocation",
         "runs": true
+    },
+    {
+        "id": "br.com.brunogrossi.MediaScannerPlugin.MediaScannerPlugin",
+        "file": "plugins/br.com.brunogrossi.MediaScannerPlugin/www/MediaScannerPlugin.js",
+        "pluginId": "br.com.brunogrossi.MediaScannerPlugin",
+        "clobbers": [
+            "cordova.plugins.MediaScannerPlugin"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -194,7 +202,8 @@ module.exports.metadata =
     "cordova-plugin-whitelist": "1.3.2",
     "cordova-plugin-compat": "1.0.0",
     "cordova-plugin-file": "4.3.3",
-    "cordova-plugin-geolocation": "2.4.3"
+    "cordova-plugin-geolocation": "2.4.3",
+    "br.com.brunogrossi.MediaScannerPlugin": "0.1.3"
 };
 // BOTTOM OF METADATA
 });

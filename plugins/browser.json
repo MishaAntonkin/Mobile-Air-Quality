@@ -15,6 +15,9 @@
         },
         "cordova-plugin-geolocation": {
             "PACKAGE_NAME": "info.luftdaten.mobilefeinstaub"
+        },
+        "br.com.brunogrossi.MediaScannerPlugin": {
+            "PACKAGE_NAME": "info.luftdaten.mobilefeinstaub"
         }
     },
     "dependent_plugins": {
