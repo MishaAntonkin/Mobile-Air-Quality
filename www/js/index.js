@@ -1,6 +1,5 @@
 //GLOBAL VAR
 d = document;
-folderExist = false;
 
 
 var app = {
@@ -10,7 +9,8 @@ var app = {
 	},
 	onDeviceReady: function() {
         
-         dataPath = cordova.file.externalRootDirectory + "NewDirInRoot/";
+        /*Place where save all files*/
+        dataPath = cordova.file.externalRootDirectory + "NewDirInRoot/";
         
 		var P1Text = document.getElementById('P1');
 		var P2Text = document.getElementById('P2');
@@ -29,9 +29,9 @@ var app = {
         var record = false;
         
     
-        
+        // Create listeners for on/off Geolocation and Record 
         initButListeners();
-        
+        // Create Folder and call on it MediaScaner
         fileInitialize();
 
         navigator.geolocation.getCurrentPosition(onSuccess, onError);
@@ -253,8 +253,8 @@ var app = {
 app.initialize();
 
 
-function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
-    if(folderExist === false) return;
+
+function writeCSV (fileName, Pm_25, Pm_10, lat, lon, date) {
     //Original CSV Pm25, Pm10, lat, long, utc
     //temporary date
     //DEFAULT
@@ -262,15 +262,13 @@ function writeCSV(fileName, Pm_25, Pm_10, lat, lon, date) {
     //Maybe LATER make global var, something like fileNameCSV
     var fileName = 'Airlogger_Date_Time_Nummber.csv';
     
-    dataline = Pm_25 +','+Pm_10+','+lat + ',' + lon + ',' + date + '\n';
-    console.log(dataline);
+    dataObj = Pm_25 +','+Pm_10+','+lat + ',' + lon + ',' + date + '\n';
+    console.log(dataObj);
     
     writeToFile(fileName, dataObj);    
-
 }
 
 function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
-    if(folderExist === false) return;
     //temporary date
     //DEFAULT
     var date =  processDate();
@@ -287,7 +285,6 @@ function writeKML(fileName, Pm_25, Pm_10, lat, lon, date) {
 }
 
 function writeKML_line(pm_25, pm_10, pm_25_old, pm_10_old, lat, lon, lat_old, lon_old, time, fname) {
-    if(folderExist === false) return;
     //temporary date
     //DEFAULT
     var date =  processDate();
@@ -415,7 +412,7 @@ function createFile(dirEntry, fileName, dataObj) {
 }
         
 function writeFile(fileEntry, dataObj) {
-            // Create a FileWriter object for our FileEntry (log.txt).
+    
     fileEntry.createWriter(function (fileWriter) {
 
         fileWriter.onwriteend = function() {
@@ -482,8 +479,8 @@ function errorFile(message) {
 		alert('Error: ' + message);
 	};
 
-function successCall(message) {
-    folderExist = true;
+function MediaScanSuccess(message) {
+    d.dispatchEvent(allowWrite);
     console.log("Eyy: " + message);
 }
 
@@ -493,7 +490,7 @@ function createDirectory() {
                  
         dirEntry.getDirectory('NewDirInRoot', { create: true, exclusive:false }, function (innerdirEntry) {
 
-            cordova.plugins.MediaScannerPlugin.scanFile(cordova.file.externalRootDirectory + "NewDirInRoot/", successCall, errorFile);
+            cordova.plugins.MediaScannerPlugin.scanFile(dataPath, MediaScanSuccess, errorFile);
                     
         }, errorFile);
             
@@ -502,6 +499,26 @@ function createDirectory() {
 }
 
 function fileInitialize() {
+    
+    
+    /*While folder havent created we assign temporary funch which do nothing 
+    but later comeback to normal state*/
+    //MAYBE REWRITE
+    allowWrite = new Event('FolderCreated');
+    
+    var funcWriteList = [writeCSV, writeKML, writeKML_line];
+    
+    writeCSV = function() {console.log("before_CSV");};
+    writeKML = function() {console.log("before_KML");};
+    writeKML_line = function() {console.log("before_KML_line");};
+
+    // Listen for the event.
+     d.addEventListener('FolderCreated', function (e) {
+            
+        writeCSV = funcWriteList[0];
+        writeKML = funcWriteList[1]; 
+        writeKML_line = funcWriteList[2]; 
+    }, false);
     
     createDirectory();
 }
